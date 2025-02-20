@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const advertisementSchema = mongoose.Schema({
+const advertisementSchema = new mongoose.Schema({
     name:{
         type:String,
         required: true
@@ -22,14 +22,19 @@ const advertisementSchema = mongoose.Schema({
         required:true
     },
     category:{
-        type:String,
-        required:true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Category'
     },
-
-    comments:{
-        type:Array
+    comments:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Comment"
+    }
+    ],
+    user:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
     }
 
 })
-const Advertisement = mongoose.model("Advertisemeent", advertisementSchema)
-module.exports = Advertisement
+module.exports = mongoose.model("Advertisement", advertisementSchema)
