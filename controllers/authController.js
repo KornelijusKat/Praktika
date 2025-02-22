@@ -1,7 +1,8 @@
 const User = require('../models/userModel')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const signToken = (id) =>{
+const signToken = (newUser) =>{
     return  token = jwt.sign(
         {id:newUser._id}, 
         process.env.JWT_SECRET, 
@@ -30,18 +31,25 @@ exports.signup= async(req, res) =>{
 }
 exports.login = async(req,res) => {
     try{
-        const user = await User.findOne(req.body.email).select('+password');
+        const { email, password } = req.body;
+        console.log(req.body.email)
+        const user = await User.findOne({email}).select('+password');
         if(!user){
             return res.status(404).json({
                 status:"failed",
                 message:'User not found, please input correct credentials'
         })
         }
+        console.log(password)
+        console.log(user)
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ 
+        console.log(isMatch)
+        if (!isMatch) {return res.status(400).json({ 
             status: 'failed',
             message: "Invalid credentials" });
+        }
         const token = signToken(user._id);
+        console.log(token)
         return res.status(201).json({
             data:{
                 id: user._id,

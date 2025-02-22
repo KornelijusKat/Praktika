@@ -4,6 +4,8 @@ const router = express.Router()
 
 router
     .route('/')
-    .get()
     .post(authController.signup)
+router
+    .route('/login')
+    .post(authController.login)
 module.exports = router

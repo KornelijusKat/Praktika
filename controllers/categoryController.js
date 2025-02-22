@@ -16,7 +16,7 @@ exports.getCategories = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
-exports.updateCategories = async(req,res) =>{
+exports.updateCategory = async(req,res) =>{
     try{
         const category = await Category.findByIdAndUpdate(req.params.id,req.body)
         if (ad.user.toString() !== req.user.id) return res.status(403).json({ 

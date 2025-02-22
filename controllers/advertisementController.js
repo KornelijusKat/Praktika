@@ -28,7 +28,20 @@ exports.getAllAds = async(req,res) =>{
     }
 }
 exports.getAllAdsByCategory = async(req,res) =>{
-    
+    try {
+        const ads = await Ad.find(req.params.categoryId);
+        if(ads){
+            return res.json({
+                status:'failed',
+                mesassage:'No corresponding ads in database'
+            })
+        }
+        return res.json({
+            status:'success',
+            data:ads});
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 }
 exports.createAdvert = async(req,res) =>{
     try{
@@ -74,7 +87,13 @@ exports.deleteAdvertByID = async(req,res) =>{
             message: "Unauthorized" 
         });
         const deletedAdvert = Advert.findByIdAndDelete(req.params.id)
+        return res.status(204).json({
+            message: "success"
+        })
     }catch(err){
-
+        return res.status(500).json({ 
+            status: "failed",
+            message:err.mesassage 
+        });
     }
 }
