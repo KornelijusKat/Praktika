@@ -37,6 +37,10 @@ exports.login = async(req,res) => {
                 message:'User not found, please input correct credentials'
         })
         }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ 
+            status: 'failed',
+            message: "Invalid credentials" });
         const token = signToken(user._id);
         return res.status(201).json({
             data:{
