@@ -3,7 +3,9 @@ const morgan = require('morgan')
 const advertRouter = require('./routes/advertisementRoutes')
 const authRouter = require('./routes/authRoutes')
 const categoryRouter = require('./routes/categoryRoutes')
+const cors = require('cors')
 const app = express();
+app.use(cors())
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }

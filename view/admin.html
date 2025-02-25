@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Skelbimų Portalas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Panel</a>
+            <button class="btn btn-outline-light" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Manage Categories</h2>
+        <form id="categoryForm" class="mb-3">
+            <div class="input-group">
+                <input type="text" id="categoryName" class="form-control" placeholder="Enter Category Name">
+                <button type="submit" class="btn btn-primary">Add Category</button>
+            </div>
+        </form>
+        <ul id="categoryList" class="list-group"></ul>
+
+        <h2 class="mt-4">Manage Listings</h2>
+        <form id="listingForm" class="mb-3">
+            <input type="text" id="listingTitle" class="form-control" placeholder="Listing Title">
+            <textarea id="listingDesc" class="form-control mt-2" placeholder="Description"></textarea>
+            <input type="number" id="listingPrice" class="form-control mt-2" placeholder="Price">
+            <input type="text" id="listingCity" class="form-control mt-2" placeholder="City">
+            <select id="listingCategory" class="form-select mt-2">
+                <option selected>Select Category</option>
+            </select>
+            <button type="submit" class="btn btn-primary mt-2">Add Listing</button>
+        </form>
+        <ul id="listingList" class="list-group"></ul>
+    </div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@ const Advert = require('../models/advertisementModel')
 
 exports.getAdById = async (req, res) =>{
     try {
-        const ad = await Advert.findById(req.params.id).populate("category user");
+        const ad = await Advert.findById(req.params.id)//.populate("category user");
         if (!ad) return res.status(404).json({ 
             message: "Ad not found" 
         });
@@ -15,14 +15,14 @@ exports.getAdById = async (req, res) =>{
 };
 exports.getAllAds = async(req,res) =>{
     try {
-        const ads = await Ad.find();
-        if(ads){
-            return res.json({
+        const ads = await Advert.find();
+        if(ads.length === 0){
+            return res.status(404).json({
                 status:'failed',
                 mesassage:'No adds in database'
             })
         }
-        return res.json(ads);
+        return res.status(200).json({ads});
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
@@ -79,14 +79,14 @@ exports.updateAd = async (req, res) => {
 };
 exports.deleteAdvertByID = async(req,res) =>{
     try{
-        const ad = Advert.findById(req.params.id)
+        console.log('hie')
+        const ad = await Advert.findById(req.params.id)
+        console.log(ad)
         if (!ad) {
             return res.status(404).json({ message: "Advert not found" });
         }
-        if (ad.user.toString() !== req.user.id) return res.status(403).json({ 
-            message: "Unauthorized" 
-        });
-        const deletedAdvert = Advert.findByIdAndDelete(req.params.id)
+     
+        const deletedAdvert = await Advert.findByIdAndDelete(req.params.id)
         return res.status(204).json({
             message: "success"
         })

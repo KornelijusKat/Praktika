@@ -10,4 +10,7 @@ router
 router
     .route('/:id/update')
     .patch(jwtAuth.authenticateJWT, categoryController.updateCategory)
+router
+    .route('/:id/deleteCategory')
+    .delete(jwtAuth.authenticateJWT,categoryController.deleteCategory)
 module.exports = router;
