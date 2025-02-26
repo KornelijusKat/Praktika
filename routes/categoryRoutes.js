@@ -8,6 +8,9 @@ router
     .get(categoryController.getCategories)
     .post(jwtAuth.authenticateJWT, categoryController.createCategory)
 router
+    .route('/:id')
+    .get(jwtAuth.authenticateJWT, categoryController.getCategoriesById)
+router
     .route('/:id/update')
     .patch(jwtAuth.authenticateJWT, categoryController.updateCategory)
 router

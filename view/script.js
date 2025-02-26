@@ -21,7 +21,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
-        
+
         const data = await response.json();
         if (response.ok) {
             localStorage.setItem("token", data.token);
@@ -42,8 +42,9 @@ async function fetchCategories() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const categories = await response.json();
-        const categoryDropdown = document.getElementById('listingCategory');
+        const categoryDropdown = document.getElementById('advertisementCategory');
         const categoryList = document.getElementById('categoryList');
+        
         if (categoryDropdown) categoryDropdown.innerHTML = '<option selected>Select Category</option>';
         if (categoryList) categoryList.innerHTML = '';
         
@@ -51,7 +52,11 @@ async function fetchCategories() {
             if (categoryList) {
                 categoryList.innerHTML += 
                     `<li class="list-group-item d-flex justify-content-between">
-                        ${category.name} <button class='btn btn-danger btn-sm' onclick='deleteCategory("${category._id}")'>Delete</button>
+                        ${category.name} 
+                        <div>
+                            <button class='btn btn-warning btn-sm' onclick='editCategory("${category._id}")'>Edit</button>
+                            <button class='btn btn-danger btn-sm' onclick='deleteCategory("${category._id}")'>Delete</button>
+                        </div>
                     </li>`;
             }
             if (categoryDropdown) {
@@ -64,19 +69,53 @@ async function fetchCategories() {
     }
 }
 
+async function editCategory(id) {
+    try {
+        const response = await fetch(`${API_URL}/categories/${id}`,{
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const category = await response.json();
+        document.getElementById('categoryId').value = id;  
+        document.getElementById('categoryName').value = category.data.name;
+        document.getElementById('categorySubmitButton').textContent = "Update Category"; 
+    } catch (error) {
+        console.error("Error fetching category for update:", error);
+    }
+}
+
 document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const category = document.getElementById('categoryName').value;
+    const categoryId = document.getElementById('categoryId')?.value.trim(); 
+    const categoryName = document.getElementById('categoryName').value.trim(); 
+    if (!categoryName) {
+        console.error("Category name cannot be empty.");
+        return;
+    }
+    const category = { name: categoryName };
+    let url = `${API_URL}/categories`;
+    let method = 'POST'; 
+    if (categoryId) {  
+        url = `${API_URL}/categories/${categoryId}/update`;
+        method = 'PATCH'; 
+    }
     try {
-        await fetch(`${API_URL}/categories`, {
-            method: 'POST',
+        const response = await fetch(url, {
+            method: method,
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: category })
+            body: JSON.stringify(category)
         });
-        document.getElementById('categoryName').value = '';
-        fetchCategories();
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Failed to ${method === 'POST' ? 'create' : 'update'} category: ${errorData.message || response.statusText}`);
+        }
+        document.getElementById('categoryId').value = ''; 
+        document.getElementById('categoryName').value = ''; 
+        document.getElementById('categorySubmitButton').textContent = "Add Category"; 
+        fetchCategories(); 
     } catch (error) {
-        console.error("Error adding category:", error);
+        console.error(`Error ${method === 'POST' ? 'creating' : 'updating'} category:`, error);
     }
 });
 
@@ -86,6 +125,7 @@ async function deleteCategory(id) {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
         if (!response.ok) {
             throw new Error(`Failed to delete category: ${response.statusText}`);
         }
@@ -95,68 +135,88 @@ async function deleteCategory(id) {
     }
 }
 
-
-document.getElementById('listingForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-   
-    const advertisement = {
-        name: document.getElementById('listingTitle').value,
-        description: document.getElementById('listingDesc').value,
-        price: document.getElementById('listingPrice').value,
-        city: document.getElementById('listingCity').value,
-        category: document.getElementById('listingCategory').value,
-        picture: "default.jpg"
-    };
-    try {
-        await fetch(`${API_URL}/advertisements`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(advertisement)
-        });
-        document.getElementById('listingTitle').value = '';
-        document.getElementById('listingDesc').value = '';
-        document.getElementById('listingPrice').value = '';
-        document.getElementById('listingCity').value = '';
-        fetchAdvertisements();
-    } catch (error) {
-        console.error("Error adding advertisement:", error);
-    }
-});
-
 async function fetchAdvertisements() {
     try {
         const response = await fetch(`${API_URL}/advertisements`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
         const data = await response.json();
-        const advertisementList = document.getElementById('listingList');
+        const advertisementList = document.getElementById('advertisementList');
         if (!advertisementList) return;
-        
+
         advertisementList.innerHTML = '';
-        
-      
-        console.log(data)
+
         data.ads.forEach(advertisement => {
             advertisementList.innerHTML += 
-                `<li class="list-group-item">
-                    <strong>${advertisement.name}</strong> - ${advertisement.description} - $${advertisement.price} - ${advertisement.city}
-                    <button class='btn btn-danger btn-sm' onclick='deleteAdvertisement("${advertisement._id}")'>Delete</button>
-                </li>`;
+            `<li class="list-group-item">
+                <strong>${advertisement.name}</strong> - ${advertisement.description} - $${advertisement.price} - ${advertisement.city}
+                <div>
+                <button class='btn btn-warning btn-sm' onclick='updateAdvertisement("${advertisement._id}")'>Edit</button>
+                <button class='btn btn-danger btn-sm' onclick='deleteAdvertisement("${advertisement._id}")'>Delete</button>
+                </div>
+            </li>`;
         });
     } catch (error) {
         console.error("Error fetching advertisements:", error);
     }
 }
+
+document.getElementById('advertisementForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
     
+    const advertisementId = document.getElementById('advertisementId').value; 
+    const advertisement = {
+        name: document.getElementById('advertisementTitle').value,
+        description: document.getElementById('advertisementDesc').value,
+        price: document.getElementById('advertisementPrice').value,
+        city: document.getElementById('advertisementCity').value,
+        category: document.getElementById('advertisementCategory').value,
+        picture: "default.jpg"
+    };
+
+    try {
+        let url = `${API_URL}/advertisements`;
+        let method = 'POST'; 
+
+        if (advertisementId) { 
+            url = `${API_URL}/advertisements/${advertisementId}`;
+            method = 'PATCH';
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(advertisement)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update advertisement');
+        }
+
+        document.getElementById('advertisementForm').reset();
+        document.getElementById('advertisementId').value = ''; 
+        document.getElementById('advertisementSubmitButton').textContent = "Add Advertisement";  
+
+        fetchAdvertisements();
+    } catch (error) {
+        console.error("Error adding/updating advertisement:", error);
+    }
+});
 
 async function deleteAdvertisement(id) {
     try {
-        console.log('hix')
-        await fetch(`${API_URL}/advertisements/${id}`, {
+        console.log('Attempting to delete advertisement:', id);
+        const response = await fetch(`${API_URL}/advertisements/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete advertisement`);
+        }
+
         fetchAdvertisements();
     } catch (error) {
         console.error("Error deleting advertisement:", error);

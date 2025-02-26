@@ -70,7 +70,7 @@ exports.updateAd = async (req, res) => {
             data: ad
         });
     } catch (err) {
-        returnres.status(500).json({ 
+        return res.status(500).json({ 
             status:'failed',
             error: err.message 
 

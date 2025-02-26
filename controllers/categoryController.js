@@ -16,12 +16,24 @@ exports.getCategories = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+exports.getCategoriesById = async (req, res) => {
+    try {
+        const category = await Category.findById(req.params.id);
+        res.json({
+            message:'success',
+            data:category
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
 exports.updateCategory = async(req,res) =>{
     try{
         const category = await Category.findByIdAndUpdate(req.params.id,req.body)
-        if (ad.user.toString() !== req.user.id) return res.status(403).json({ 
-            message: "Unauthorized" 
-        });
+        return res.status(200).json({
+            status:'success',
+            data:category
+        })
     }catch(err){
         res.status(500).json({
             status:'failed',
