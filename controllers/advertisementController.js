@@ -29,7 +29,7 @@ exports.getAllAds = async(req,res) =>{
 }
 exports.getAllAdsByCategory = async(req,res) =>{
     try {
-        const ads = await Ad.find(req.params.categoryId);
+        const ads = await Advert.find(req.params.categoryId);
         if(ads){
             return res.json({
                 status:'failed',
